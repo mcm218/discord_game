@@ -1,17 +1,24 @@
 ﻿public class PlayerStats
 {
-    // Primary Skills
+    // Physical Attributes
+    public Stat Height;
+    public Stat HairColor;
+    // Stats
     public Stat Strength;
     public Stat Agility;
 
-    // Secondary Skills
+    // Skills
     public Skill Farming;
     public Skill Fishing;
 
     public PlayerStats()
     {
+        Height = new Stat(false);
+        HairColor = new Stat(false);
+
         Strength = new Stat();
         Agility = new Stat();
+        
         Farming = new Skill();
         Fishing = new Skill();
     }

@@ -5,7 +5,7 @@ public class Stat
     public int experience { get; set; }
 
 
-    public Stat(int _level = 1, bool _canLevel = true)
+    public Stat(bool _canLevel = true, int _level = 1)
     {
         level = _level;
         canLevel = _canLevel;

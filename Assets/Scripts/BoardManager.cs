@@ -33,8 +33,6 @@ public class BoardManager : MonoBehaviour
             {
                 Vector2 pos = new Vector2(x, y);
                 GameObject instance = Instantiate(tile, pos, Quaternion.identity, boardHolder);
-                SpriteRenderer spriteRenderer = instance.GetComponent<SpriteRenderer>();
-                spriteRenderer.sprite = floor;
                 // Generates wall if on edge
                 if (x == 0 || x == columns - 1 || y == 0 || y == rows - 1)
                 {
@@ -59,6 +57,7 @@ public class BoardManager : MonoBehaviour
         Debug.Log(houseWidth + "x" + houseHeight);
         // Single Game Object, covering multiple tiles
         GameObject houseObject = Instantiate(house, randTile.position, Quaternion.identity, randTile.self.transform);
+        // Adjust object position so it fully covers parent tile
         // move to adjust location within child? But need to account for objectWidth/objectHeight... 
         houseObject.transform.position += new Vector3(houseWidth / 2.0f - 0.5f, houseHeight / 2.0f - 0.5f, 0);
         randTile.child = houseObject;
