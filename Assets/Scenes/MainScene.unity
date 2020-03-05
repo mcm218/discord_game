@@ -188,6 +188,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
+    - target: {fileID: 8964080884143843199, guid: 8330c72ff6ba2c84fb48ef64d7b1b578,
+        type: 3}
+      propertyPath: Height
+      value: 300
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 8330c72ff6ba2c84fb48ef64d7b1b578, type: 3}
 --- !u!1 &406620215 stripped
@@ -414,6 +419,24 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1162419903 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4346211142786848935, guid: 957d8aff5b79b44419901310f830012a,
+    type: 3}
+  m_PrefabInstance: {fileID: 4346211142048008057}
+  m_PrefabAsset: {fileID: 0}
+--- !u!156049354 &1162419904
+Grid:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1162419903}
+  m_Enabled: 1
+  m_CellSize: {x: 1, y: 1, z: 1}
+  m_CellGap: {x: 0, y: 0, z: 0}
+  m_CellLayout: 0
+  m_CellSwizzle: 0
 --- !u!1 &2012508246
 GameObject:
   m_ObjectHideFlags: 0
