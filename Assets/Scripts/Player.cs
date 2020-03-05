@@ -22,7 +22,6 @@ public class Player : MonoBehaviour
         spriteRenderer.color = HairColor;
     }
 
-    // Update is called once per frame
     void FixedUpdate()
     {
         float horizontal = Input.GetAxisRaw("Horizontal");
@@ -31,6 +30,7 @@ public class Player : MonoBehaviour
         Vector2 move = new Vector2(horizontal, vertical);
         move.Normalize();
         Vector2 position = rigidbody2d.position;
+
         rigidbody2d.MovePosition(position + move * speed * Time.deltaTime);
     }
 }

@@ -56,9 +56,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 76510270cdf6a5849b33603fd23ffb3a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  columns: 20
-  rows: 10
+  player: {fileID: 8964080884143843193, guid: 8330c72ff6ba2c84fb48ef64d7b1b578, type: 3}
+  columns: 30
+  rows: 20
   tile: {fileID: 7526049294765229776, guid: a9f707b6a076be8468e469c2cc1aae2e, type: 3}
   wall: {fileID: 8801602684672229058, guid: 74d21c29da07c0f4e9098a8061d252af, type: 3}
   house: {fileID: 5169201015987487580, guid: 4b72d8fde50b86e47a2127bf1f972564, type: 3}
+  mushroom: {fileID: 6069056539711448265, guid: 59d05ce15b15ffb4bb1838299d7745a7,
+    type: 3}
+  spikes: {fileID: 1501754877123558756, guid: 3416ce110ab81ed45b39e6182834f5af, type: 3}
+  spawnItems: []
   floor: {fileID: 21300000, guid: 1b03b303a714af04c83ab7b47192215a, type: 3}

@@ -1,14 +1,19 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Cinemachine;
 
 public class BoardManager : MonoBehaviour
 {
+    public GameObject player;
     public int columns = 100;
     public int rows = 100;
     public GameObject tile;
     public GameObject wall;
     public GameObject house;
+    public GameObject mushroom;
+    public GameObject spikes;
+    public GameObject[] spawnItems;
     private int houseWidth = 4;
     private int houseHeight = 4;
     public Sprite floor;
@@ -77,5 +82,68 @@ public class BoardManager : MonoBehaviour
             }
         }
 
+        // Spawn Mushrooms
+        // (row*columns) / 10 clumps
+        // clumps contain 2-5 mushrooms
+        SpawnClump(mushroom, 5, 3, 9, 5);
+        SpawnClump(spikes, 5, 1, 4, 5);
+        // Spawn Player
+        do
+        {
+            randTile = grid[Random.Range(2, columns - houseWidth), Random.Range(2, rows - houseHeight)];
+        } while (randTile.isFull);
+        player.transform.position = randTile.position;
+    }
+
+
+    private void SpawnClump(GameObject item, int numClumps, int minClumpSize, int maxClumpSize, int spawnChance = 10)
+    {
+        for (int n = 0; n < numClumps; n++)
+        {
+            int clumpSize = 0;
+            int itemsToCreate = Random.Range(minClumpSize, maxClumpSize + 1);
+            // Get random tile to start clump
+            Tile randTile;
+            do
+            {
+                randTile = grid[Random.Range(1, columns), Random.Range(1, rows)];
+            } while (randTile.isFull);
+            randTile.child = Instantiate(item, randTile.position, Quaternion.identity, randTile.self.transform);
+            clumpSize++;
+            Vector2 seedPos = randTile.position;
+            Tile newTile;
+            int root = (int)Mathf.Ceil(Mathf.Sqrt(maxClumpSize));
+            do
+            {
+                for (int y = -root; y < root; y++)
+                {
+                    for (int x = -root; x < root; x++)
+                    {
+                        if ((int)seedPos.x + x < 0 || (int)seedPos.x + x >= columns || (int)seedPos.y + y < 0 || (int)seedPos.y + y >= rows)
+                        {
+                            continue;
+                        }
+                        newTile = grid[(int)seedPos.x + x, (int)seedPos.y + y];
+                        if (!newTile.isFull)
+                        {
+                            if (Random.Range(0, 100) < spawnChance)
+                            {
+                                newTile.child = Instantiate(item, newTile.position, Quaternion.identity, randTile.self.transform);
+                                clumpSize++;
+                            }
+                        }
+                        if (clumpSize == itemsToCreate)
+                        {
+                            break;
+                        }
+                    }
+                    if (clumpSize == itemsToCreate)
+                    {
+                        break;
+                    }
+                }
+            } while (clumpSize < minClumpSize);
+
+        }
     }
 }
