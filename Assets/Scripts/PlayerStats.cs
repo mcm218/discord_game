@@ -1,34 +1,49 @@
 ﻿public class PlayerStats
 {
-    // Physical Attributes
-    public Stat Height;
-    public Stat HairColor;
     // Stats
     public Stat Strength;
+    public Stat Endurance;
+    public Stat Intelligence;
     public Stat Agility;
+    public Stat Luck;
 
     // Skills
     public Skill Farming;
-    public Skill Fishing;
+    public Skill Melee;
+    public Skill Guns;
+    public Skill Science;
+    public Skill Crafting;
+
+    // Perks
 
     public PlayerStats()
     {
-        Height = new Stat(false);
-        HairColor = new Stat(false);
-
         Strength = new Stat();
+        Endurance = new Stat();
+        Intelligence = new Stat();
         Agility = new Stat();
+        Luck = new Stat();
         
         Farming = new Skill();
-        Fishing = new Skill();
+        Melee = new Skill();
+        Guns = new Skill();
+        Science = new Skill();
+        Crafting = new Skill();
     }
     public PlayerStats(int PlayerID)
     {
         // if old player, load stats
         // else
         Strength = new Stat();
+        Endurance = new Stat();
+        Intelligence = new Stat();
         Agility = new Stat();
+        Luck = new Stat();
+        
         Farming = new Skill();
-        Fishing = new Skill();
+        Melee = new Skill();
+        Guns = new Skill();
+        Science = new Skill();
+        Crafting = new Skill();
     }
 }

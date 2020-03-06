@@ -1,31 +1,34 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Cinemachine;
+using UnityEngine.Tilemaps;
 
 public class BoardManager : MonoBehaviour
 {
     public GameObject player;
     public int columns = 100;
     public int rows = 100;
-    public GameObject tile;
-    public GameObject wall;
-    public GameObject house;
+    public Tile grass;
+    public Tile wall;
+    public Tile house;
     public GameObject mushroom;
     public GameObject spikes;
     public GameObject[] spawnItems;
     private int houseWidth = 4;
     private int houseHeight = 4;
-    public Sprite floor;
     private Transform boardHolder;
 
-    private Tile[,] grid;
+    private Grid grid;
+    private Tilemap tilemap;
+    private bool[,] tileIsFull;
 
     public void SetupScene()
     {
-        grid = new Tile[columns, rows];
+        grid = GetComponent<Grid>();
+        tilemap = GetComponentInChildren<Tilemap>();
         if (columns < 10) columns = 10;
         if (rows < 10) rows = 10;
+        tileIsFull = new bool[columns, rows];
         BoardSetup();
     }
     void BoardSetup()
@@ -36,63 +39,47 @@ public class BoardManager : MonoBehaviour
         {
             for (int y = 0; y < rows; y++)
             {
-                Vector2 pos = new Vector2(x, y);
-                GameObject instance = Instantiate(tile, pos, Quaternion.identity, boardHolder);
+                Vector3Int pos = new Vector3Int(x, y, 0);
+                // GameObject instance = Instantiate(tile, pos, Quaternion.identity, boardHolder);
                 // Generates wall if on edge
                 if (x == 0 || x == columns - 1 || y == 0 || y == rows - 1)
                 {
-                    GameObject wallObject = Instantiate(wall, pos, Quaternion.identity, instance.transform);
-                    grid[x, y] = new Tile(pos, instance, wallObject);
+                    // GameObject wallObject = Instantiate(wall, pos, Quaternion.identity, instance.transform);
+                    // grid[x, y] = new Tile(pos, instance, wallObject);
+                    tilemap.SetTile(pos, wall);
+                    tileIsFull[x, y] = true;
                 }
                 else
                 {
-                    grid[x, y] = new Tile(pos, instance);
+                    tilemap.SetTile(pos, grass);
+                    tileIsFull[x, y] = false;
                 }
             }
         }
         // Generate 1 House
         // Get random coordinate for bottom-left corner of house
-        Tile randTile;
+        Vector3Int randPos = new Vector3Int(0, 0, 0);
         do
         {
-            randTile = grid[Random.Range(2, columns - houseWidth), Random.Range(2, rows - houseHeight)];
-        } while (randTile.isFull);
-        Debug.Log("House Position: ");
-        Debug.Log(randTile.position);
-        Debug.Log(houseWidth + "x" + houseHeight);
-        // Single Game Object, covering multiple tiles
-        GameObject houseObject = Instantiate(house, randTile.position, Quaternion.identity, randTile.self.transform);
-        // Adjust object position so it fully covers parent tile
-        // move to adjust location within child? But need to account for objectWidth/objectHeight... 
-        houseObject.transform.position += new Vector3(houseWidth / 2.0f - 0.5f, houseHeight / 2.0f - 0.5f, 0);
-        randTile.child = houseObject;
+            randPos.x = Random.Range(1, columns - houseWidth);
+            randPos.y = Random.Range(1 + houseHeight, rows);
+        } while (tileIsFull[randPos.x, randPos.y]);
+        Debug.Log(randPos);
+        tilemap.SetTile(randPos, house);
         // Mark tiles occupied by house as full
-        for (int x = 1; x < houseWidth; x++)
+        for (int x = 0; x < houseWidth; x++)
         {
-            int xPos = (int)randTile.position.x + x;
-            for (int y = 1; y < houseHeight; y++)
+            for (int y = houseHeight - 1; y >= 0; y--)
             {
-                int yPos = (int)randTile.position.y + y;
-                if (grid[xPos, yPos].isFull)
-                {
-                    //delete whatever is here
-                    Destroy(grid[xPos, yPos].child);
-                }
-                grid[xPos, yPos].child = houseObject;
+                tileIsFull[randPos.x + x, randPos.y - y] = true;
             }
         }
-
-        // Spawn Mushrooms
-        // (row*columns) / 10 clumps
-        // clumps contain 2-5 mushrooms
+        // // Spawn Mushrooms
+        // // (row*columns) / 10 clumps
+        // // clumps contain 2-5 mushrooms
         SpawnClump(mushroom, 5, 3, 9, 5);
         SpawnClump(spikes, 5, 1, 4, 5);
         // Spawn Player
-        do
-        {
-            randTile = grid[Random.Range(2, columns - houseWidth), Random.Range(2, rows - houseHeight)];
-        } while (randTile.isFull);
-        player.transform.position = randTile.position;
     }
 
 
@@ -103,15 +90,17 @@ public class BoardManager : MonoBehaviour
             int clumpSize = 0;
             int itemsToCreate = Random.Range(minClumpSize, maxClumpSize + 1);
             // Get random tile to start clump
-            Tile randTile;
+            Vector3Int randPos = new Vector3Int(0, 0, 0);
             do
             {
-                randTile = grid[Random.Range(1, columns), Random.Range(1, rows)];
-            } while (randTile.isFull);
-            randTile.child = Instantiate(item, randTile.position, Quaternion.identity, randTile.self.transform);
+                randPos.x = Random.Range(1, columns - houseWidth);
+                randPos.y = Random.Range(1 + houseHeight, rows);
+            } while (tileIsFull[randPos.x, randPos.y]);
+            // convert grid coords to world coords
+            Instantiate(item, grid.GetCellCenterWorld(randPos), Quaternion.identity);
             clumpSize++;
-            Vector2 seedPos = randTile.position;
-            Tile newTile;
+            Vector3Int seedPos = randPos;
+            Vector3Int newPos = randPos;
             int root = (int)Mathf.Ceil(Mathf.Sqrt(maxClumpSize));
             do
             {
@@ -123,12 +112,13 @@ public class BoardManager : MonoBehaviour
                         {
                             continue;
                         }
-                        newTile = grid[(int)seedPos.x + x, (int)seedPos.y + y];
-                        if (!newTile.isFull)
+                        newPos.x = seedPos.x + x;
+                        newPos.y = seedPos.y + y;
+                        if (!tileIsFull[newPos.x, newPos.y])
                         {
                             if (Random.Range(0, 100) < spawnChance)
                             {
-                                newTile.child = Instantiate(item, newTile.position, Quaternion.identity, randTile.self.transform);
+                                Instantiate(item, grid.GetCellCenterWorld(newPos), Quaternion.identity);
                                 clumpSize++;
                             }
                         }
