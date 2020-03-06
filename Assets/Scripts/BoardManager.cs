@@ -10,13 +10,12 @@ public class BoardManager : MonoBehaviour
     public int rows = 100;
     public Tile grass;
     public Tile wall;
-    public Tile house;
+    public Tile[] buildings;
     public GameObject mushroom;
     public GameObject spikes;
-    public GameObject[] spawnItems;
     private int houseWidth = 4;
     private int houseHeight = 4;
-    private Transform boardHolder;
+    private GameObject boardHolder;
 
     private Grid grid;
     private Tilemap tilemap;
@@ -33,7 +32,6 @@ public class BoardManager : MonoBehaviour
     }
     void BoardSetup()
     {
-        boardHolder = new GameObject("Board").transform;
         // Generate Floor & Walls
         for (int x = 0; x < columns; x++)
         {
@@ -42,98 +40,152 @@ public class BoardManager : MonoBehaviour
                 Vector3Int pos = new Vector3Int(x, y, 0);
                 // GameObject instance = Instantiate(tile, pos, Quaternion.identity, boardHolder);
                 // Generates wall if on edge
+                tilemap.SetTile(pos, grass);
+                tileIsFull[x, y] = false;
                 if (x == 0 || x == columns - 1 || y == 0 || y == rows - 1)
                 {
                     // GameObject wallObject = Instantiate(wall, pos, Quaternion.identity, instance.transform);
                     // grid[x, y] = new Tile(pos, instance, wallObject);
+                    pos.z = 1;
                     tilemap.SetTile(pos, wall);
                     tileIsFull[x, y] = true;
-                }
-                else
-                {
-                    tilemap.SetTile(pos, grass);
-                    tileIsFull[x, y] = false;
                 }
             }
         }
         // Generate 1 House
         // Get random coordinate for bottom-left corner of house
         Vector3Int randPos = new Vector3Int(0, 0, 0);
-        do
+        for (int i = 0; i < buildings.Length; i++)
         {
-            randPos.x = Random.Range(1, columns - houseWidth);
-            randPos.y = Random.Range(1 + houseHeight, rows);
-        } while (tileIsFull[randPos.x, randPos.y]);
-        Debug.Log(randPos);
-        tilemap.SetTile(randPos, house);
-        // Mark tiles occupied by house as full
-        for (int x = 0; x < houseWidth; x++)
-        {
-            for (int y = houseHeight - 1; y >= 0; y--)
-            {
-                tileIsFull[randPos.x + x, randPos.y - y] = true;
-            }
-        }
-        // // Spawn Mushrooms
-        // // (row*columns) / 10 clumps
-        // // clumps contain 2-5 mushrooms
-        SpawnClump(mushroom, 5, 3, 9, 5);
-        SpawnClump(spikes, 5, 1, 4, 5);
-        // Spawn Player
-    }
-
-
-    private void SpawnClump(GameObject item, int numClumps, int minClumpSize, int maxClumpSize, int spawnChance = 10)
-    {
-        for (int n = 0; n < numClumps; n++)
-        {
-            int clumpSize = 0;
-            int itemsToCreate = Random.Range(minClumpSize, maxClumpSize + 1);
-            // Get random tile to start clump
-            Vector3Int randPos = new Vector3Int(0, 0, 0);
             do
             {
                 randPos.x = Random.Range(1, columns - houseWidth);
                 randPos.y = Random.Range(1 + houseHeight, rows);
             } while (tileIsFull[randPos.x, randPos.y]);
-            // convert grid coords to world coords
-            Instantiate(item, grid.GetCellCenterWorld(randPos), Quaternion.identity);
-            clumpSize++;
-            Vector3Int seedPos = randPos;
-            Vector3Int newPos = randPos;
-            int root = (int)Mathf.Ceil(Mathf.Sqrt(maxClumpSize));
+            Debug.Log(randPos);
+            tilemap.SetTile(randPos, buildings[0]);
+            // Mark tiles occupied by house as full
+            for (int x = 0; x < houseWidth; x++)
+            {
+                for (int y = houseHeight - 1; y >= 0; y--)
+                {
+                    tileIsFull[randPos.x + x, randPos.y - y] = true;
+                }
+            }
+        }
+        // // Spawn Mushrooms
+        // // (row*columns) / 10 clumps
+        // // clumps contain 2-5 mushrooms
+        SpawnClump(mushroom, 5, 3, 20, 5, 40, true);
+        SpawnClump(spikes, 5, 1, 4, 20, 5);
+        // Spawn Player
+        do
+        {
+            randPos.x = Random.Range(1, columns - houseWidth);
+            randPos.y = Random.Range(1 + houseHeight, rows);
+        } while (tileIsFull[randPos.x, randPos.y]);
+        player.transform.position = grid.GetCellCenterWorld(randPos);
+    }
+
+    public void setTileState(Vector3Int pos, bool isFull)
+    {
+        tileIsFull[pos.x, pos.y] = isFull;
+    }
+
+
+    private void SpawnClump(GameObject item, int numClumps, int minClumpSize, int maxClumpSize, int maxDistFromSeed, int spawnChance = 10, bool distanceWeight = false)
+    {
+        int maxClumpLen = maxDistFromSeed * 2 + 1;
+        int maxTilesInClump = maxClumpLen * maxClumpLen;
+        if (minClumpSize > maxClumpSize)
+        {
+            Debug.LogError("minClumpSize must be smaller or equal to maxClumpSize... Lowering minClumpSize");
+            minClumpSize = maxClumpSize;
+        }
+        if (minClumpSize > maxTilesInClump)
+        {
+            Debug.LogError("Not enough possible tiles to meet minClumpSize... Lowering minClumpSize");
+            minClumpSize = 2 * maxDistFromSeed + 1 > maxClumpSize ? maxClumpSize : 2 * maxDistFromSeed + 1;
+        }
+        for (int n = 0; n < numClumps; n++)
+        {
+            int clumpSize = 0;
+            int itemsToCreate = Random.Range(minClumpSize, maxClumpSize + 1);
+            // Get random tile to start clump
+            Vector3Int seedPos = new Vector3Int(0, 0, 0);
             do
             {
-                for (int y = -root; y < root; y++)
+                seedPos.x = Random.Range(1, columns - houseWidth);
+                seedPos.y = Random.Range(1 + houseHeight, rows);
+            } while (tileIsFull[seedPos.x, seedPos.y]);
+            Vector3Int pos = seedPos;
+            // Generate items in spiral around seed
+            do
+            {
+                int x, y, dx, dy;
+                float dist;
+                x = y = dx = 0;
+                dy = -1;
+                int t = maxClumpLen;
+                for (int i = 0; clumpSize < itemsToCreate && i < maxTilesInClump; i++)
                 {
-                    for (int x = -root; x < root; x++)
+                    if (-maxDistFromSeed <= x && x <= maxDistFromSeed && -maxDistFromSeed <= y && y <= maxDistFromSeed)
                     {
-                        if ((int)seedPos.x + x < 0 || (int)seedPos.x + x >= columns || (int)seedPos.y + y < 0 || (int)seedPos.y + y >= rows)
+                        // Attempt to generate item
+                        pos.x = seedPos.x + x;
+                        pos.y = seedPos.y + y;
+                        // Spawn if within boundaries, passes spawnChance check and tile isn't full
+                        if (pos.x > 0 && pos.x < columns && pos.y > 0 && pos.y < rows && !tileIsFull[pos.x, pos.y])
                         {
-                            continue;
-                        }
-                        newPos.x = seedPos.x + x;
-                        newPos.y = seedPos.y + y;
-                        if (!tileIsFull[newPos.x, newPos.y])
-                        {
-                            if (Random.Range(0, 100) < spawnChance)
+                            if (x == 0 && y == 0)
                             {
-                                Instantiate(item, grid.GetCellCenterWorld(newPos), Quaternion.identity);
+                                // turn into function
+                                spawnItem(item, pos);
                                 clumpSize++;
                             }
-                        }
-                        if (clumpSize == itemsToCreate)
-                        {
-                            break;
+                            else
+                            {
+                                if (distanceWeight)
+                                {
+                                    dist = 1 / Mathf.Sqrt(x * x + y * y); // make less sharp? currently i.e. 2 dist = half chance -> 3 dist = third chance 
+                                    if (Random.Range(0, 100) < spawnChance / dist)
+                                    {
+                                        spawnItem(item, pos);
+                                        clumpSize++;
+                                    }
+                                }
+                                else
+                                {
+                                    if (Random.Range(0, 100) < spawnChance)
+                                    {
+                                        spawnItem(item, pos);
+                                        clumpSize++;
+                                    }
+                                }
+
+
+                            }
+
                         }
                     }
-                    if (clumpSize == itemsToCreate)
+                    if (x == y || (x < 0 && x == -y) || (x > 0 && x == 1 - y))
                     {
-                        break;
+                        t = dx;
+                        dx = -dy;
+                        dy = t;
                     }
+                    x += dx;
+                    y += dy;
                 }
             } while (clumpSize < minClumpSize);
 
         }
+    }
+
+
+    private void spawnItem(GameObject item, Vector3Int pos)
+    {
+        Instantiate(item, grid.GetCellCenterWorld(pos), Quaternion.identity, transform);
+        setTileState(pos, true);
     }
 }

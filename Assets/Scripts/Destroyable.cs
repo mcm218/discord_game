@@ -3,7 +3,7 @@ using UnityEngine;
 public class Destroyable : MonoBehaviour
 {
     const float distance = 1.5f;
-    public float maxTimer = 1.0f;
+    public float timeToDestroy = 1.0f;
     bool counting = false;
     private float timer = 1.0f;
     void OnMouseDown()
@@ -13,7 +13,7 @@ public class Destroyable : MonoBehaviour
         Vector2 pos = Camera.main.transform.position;
         if (Mathf.Abs(pos.x - transform.position.x) < distance && Mathf.Abs(pos.y - transform.position.y) < distance)
         {
-            timer = maxTimer;
+            timer = timeToDestroy;
             counting = true;
             Debug.Log("Destroying in: " + timer);
         }
@@ -28,7 +28,21 @@ public class Destroyable : MonoBehaviour
             timer -= Time.deltaTime;
             if (timer <= 0)
             {
-                Destroy(transform.gameObject);
+                // update tile as no longer full
+                Grid grid = GetComponentInParent<Grid>();
+                BoardManager boardManager = GetComponentInParent<BoardManager>();
+                if (grid != null && boardManager != null)
+                {
+                    Vector3Int pos = grid.WorldToCell(transform.position);
+                    boardManager.setTileState(pos, false);
+                    // remove object
+                    Destroy(transform.gameObject);
+                }
+                else
+                {
+                    Debug.Log("Couldn't find grid or board manager");
+                }
+
             }
         }
     }
