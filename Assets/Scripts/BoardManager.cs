@@ -9,7 +9,7 @@ public class BoardManager : MonoBehaviour
     public int columns = 100;
     public int rows = 100;
     public Tile grass;
-    public Tile wall;
+    public GameObject wall;
     public Tile[] buildings;
     public GameObject mushroom;
     public GameObject spikes;
@@ -33,25 +33,26 @@ public class BoardManager : MonoBehaviour
     void BoardSetup()
     {
         // Generate Floor & Walls
-        for (int x = 0; x < columns; x++)
+        for (int x = -20; x < columns + 20; x++)
         {
-            for (int y = 0; y < rows; y++)
+            for (int y = -15; y < rows + 15; y++)
             {
                 Vector3Int pos = new Vector3Int(x, y, 0);
                 // GameObject instance = Instantiate(tile, pos, Quaternion.identity, boardHolder);
                 // Generates wall if on edge
                 tilemap.SetTile(pos, grass);
-                tileIsFull[x, y] = false;
+                if (x >= 0 && x < columns && y >= 0 && y < rows)
+                    tileIsFull[x, y] = false;
                 if (x == 0 || x == columns - 1 || y == 0 || y == rows - 1)
                 {
                     // GameObject wallObject = Instantiate(wall, pos, Quaternion.identity, instance.transform);
                     // grid[x, y] = new Tile(pos, instance, wallObject);
-                    pos.z = 1;
-                    tilemap.SetTile(pos, wall);
-                    tileIsFull[x, y] = true;
+                    if (x >= 0 && x < columns && y >= 0 && y < rows)
+                        spawnItem(wall, pos);
                 }
             }
         }
+        // Generate floor around edges
         // Generate 1 House
         // Get random coordinate for bottom-left corner of house
         Vector3Int randPos = new Vector3Int(0, 0, 0);

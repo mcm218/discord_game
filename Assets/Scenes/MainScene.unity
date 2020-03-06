@@ -309,7 +309,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 5
+  orthographic size: 4
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -378,7 +378,7 @@ MonoBehaviour:
   m_Follow: {fileID: 406620220}
   m_Lens:
     FieldOfView: 60
-    OrthographicSize: 5
+    OrthographicSize: 4
     NearClipPlane: 0.3
     FarClipPlane: 1000
     Dutch: 0
@@ -419,7 +419,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1750546934, guid: 957d8aff5b79b44419901310f830012a, type: 3}
       propertyPath: m_Mode
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1750546935, guid: 957d8aff5b79b44419901310f830012a, type: 3}
       propertyPath: m_Tiles.Array.size
@@ -927,8 +927,8 @@ PrefabInstance:
         type: 3}
       propertyPath: wall
       value: 
-      objectReference: {fileID: 11400000, guid: 9b9def8e506804941befcaa41b5de741,
-        type: 2}
+      objectReference: {fileID: 6189874489561005669, guid: 812d1dc49c7317e458456dd118896155,
+        type: 3}
     - target: {fileID: 4346211142786848934, guid: 957d8aff5b79b44419901310f830012a,
         type: 3}
       propertyPath: buildings.Array.data[0]
