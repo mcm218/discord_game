@@ -9,9 +9,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3261911314323350096}
+  - component: {fileID: -7140960321559301960}
   - component: {fileID: 3147286079299887820}
   - component: {fileID: -7532447500361221350}
-  - component: {fileID: -7140960321559301960}
   - component: {fileID: 8869516820722578992}
   m_Layer: 0
   m_Name: Bush
@@ -34,6 +34,21 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &-7140960321559301960
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 251750983676475739}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc4f4cc0b7175044386e2f866c928b6b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  player: {fileID: 8964080884143843193, guid: 8330c72ff6ba2c84fb48ef64d7b1b578, type: 3}
+  toolTypeRequired: -1
+  timeToDestroy: 1
 --- !u!212 &3147286079299887820
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -110,19 +125,6 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 0.54152024, y: 0.16405696}
   m_EdgeRadius: 0
---- !u!114 &-7140960321559301960
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 251750983676475739}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: dc4f4cc0b7175044386e2f866c928b6b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  timeToDestroy: 1
 --- !u!61 &8869516820722578992
 BoxCollider2D:
   m_ObjectHideFlags: 0

@@ -5,6 +5,7 @@ using UnityEngine;
 public class Player : MonoBehaviour
 {
     public float speed = 3.0f;
+    public int tool = 0;
 
     private PlayerStats playerStats = new PlayerStats();
     public PlayerStats stats { get { return playerStats; } }
